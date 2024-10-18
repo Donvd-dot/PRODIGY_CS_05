@@ -1,0 +1,40 @@
+from scapy.all import sniff
+from scapy.layers.inet import IP, TCP, UDP
+
+# Function to analyze and display packet details
+def analyze_packet(packet):
+    # Check if the packet has an IP layer
+    if IP in packet:
+        ip_layer = packet[IP]
+        src_ip = ip_layer.src
+        dst_ip = ip_layer.dst
+        proto = ip_layer.proto
+
+        print(f"Source IP: {src_ip}")
+        print(f"Destination IP: {dst_ip}")
+
+        # Check the protocol and display appropriate information
+        if proto == 6:  # TCP
+            if TCP in packet:
+                tcp_layer = packet[TCP]
+                print(f"Protocol: TCP | Source Port: {tcp_layer.sport} | Destination Port: {tcp_layer.dport}")
+        elif proto == 17:  # UDP
+            if UDP in packet:
+                udp_layer = packet[UDP]
+                print(f"Protocol: UDP | Source Port: {udp_layer.sport} | Destination Port: {udp_layer.dport}")
+        else:
+            print(f"Protocol: {proto} (Other)")
+
+        # Print payload data if available
+        if len(packet) > 0:
+            print(f"Payload Data: {bytes(packet).hex()}")
+
+# Start sniffing packets (for educational use only)
+def start_sniffing(interface="eth0"):
+    print(f"Starting packet capture on interface {interface}...")
+    sniff(iface=interface, prn=analyze_packet)
+
+# Call the sniffing function (use appropriate network interface for your machine)
+if __name__ == "__main__":
+    interface = input("Enter network interface (e.g., eth0, wlan0): ")
+    start_sniffing(interface)
